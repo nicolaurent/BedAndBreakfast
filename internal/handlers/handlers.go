@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/nicolaurent/bedandbreakfast/pkg/config"
-	"github.com/nicolaurent/bedandbreakfast/pkg/models"
-	"github.com/nicolaurent/bedandbreakfast/pkg/renders"
+	"github.com/nicolaurent/bedandbreakfast/internal/config"
+	"github.com/nicolaurent/bedandbreakfast/internal/models"
+	"github.com/nicolaurent/bedandbreakfast/internal/renders"
 )
 
 // TemplateData holds data sent from handlers to templates
@@ -96,7 +96,6 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 
-	log.Println(string(out))
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
 }

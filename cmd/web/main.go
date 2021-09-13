@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/nicolaurent/bedandbreakfast/pkg/config"
-	"github.com/nicolaurent/bedandbreakfast/pkg/handlers"
-	"github.com/nicolaurent/bedandbreakfast/pkg/renders"
+	"github.com/nicolaurent/bedandbreakfast/internal/config"
+	"github.com/nicolaurent/bedandbreakfast/internal/handlers"
+	"github.com/nicolaurent/bedandbreakfast/internal/renders"
 
 	"github.com/alexedwards/scs/v2"
 )
