@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/nicolaurent/bedandbreakfast/internal/config"
 	"github.com/nicolaurent/bedandbreakfast/internal/handlers"
+	"github.com/nicolaurent/bedandbreakfast/internal/models"
 	"github.com/nicolaurent/bedandbreakfast/internal/renders"
 
 	"github.com/alexedwards/scs/v2"
@@ -20,16 +22,10 @@ var session *scs.SessionManager
 
 // main is the main applicatio function
 func main() {
-	/*
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			n, err := fmt.Fprintf(w, "Hello, world!")
-			if err != nil {
-				fmt.Println(err)
-			}
-			fmt.Println("Bytes written:", n)
-		})
-		// */
+	// what am I going to put in the session
+	gob.Register(models.Reservation{})
 
+	// Change this to true when in production
 	app.InProduction = false
 
 	session = scs.New()
