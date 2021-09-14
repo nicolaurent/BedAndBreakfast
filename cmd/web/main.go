@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/nicolaurent/bedandbreakfast/internal/config"
 	"github.com/nicolaurent/bedandbreakfast/internal/handlers"
+	"github.com/nicolaurent/bedandbreakfast/internal/helpers"
 	"github.com/nicolaurent/bedandbreakfast/internal/models"
 	"github.com/nicolaurent/bedandbreakfast/internal/renders"
 
@@ -19,6 +21,8 @@ const portNumber = ":8080"
 
 var app config.AppConfig
 var session *scs.SessionManager
+var infoLog *log.Logger
+var errorLog *log.Logger
 
 // main is the main applicatio function
 func main() {
@@ -43,6 +47,12 @@ func run() error {
 	// Change this to true when in production
 	app.InProduction = false
 
+	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.InfoLog = infoLog
+
+	errorLog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errorLog
+
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
 	session.Cookie.Persist = true
@@ -64,6 +74,7 @@ func run() error {
 	handlers.NewHandlers(repo)
 
 	renders.NewTemplates(&app)
+	helpers.NewHelpers(&app)
 
 	// http.HandleFunc("/", handlers.Repo.Home)
 	// http.HandleFunc("/about", handlers.Repo.About)
