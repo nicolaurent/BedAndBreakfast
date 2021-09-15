@@ -16,3 +16,5 @@
 
 #Ignore vscode setting
 .vscode
+
+database.yml
