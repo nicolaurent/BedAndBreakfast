@@ -6,24 +6,29 @@ import (
 	"net/http"
 
 	"github.com/nicolaurent/bedandbreakfast/internal/config"
+	"github.com/nicolaurent/bedandbreakfast/internal/driver"
 	"github.com/nicolaurent/bedandbreakfast/internal/forms"
 	"github.com/nicolaurent/bedandbreakfast/internal/helpers"
 	"github.com/nicolaurent/bedandbreakfast/internal/models"
 	"github.com/nicolaurent/bedandbreakfast/internal/renders"
+	"github.com/nicolaurent/bedandbreakfast/internal/repository"
+	"github.com/nicolaurent/bedandbreakfast/internal/repository/dbrepo"
 )
 
 // TemplateData holds data sent from handlers to templates
 
 type Repository struct {
 	App *config.AppConfig
+	DB  repository.DatabaseRepo
 }
 
 var Repo *Repository
 
 // NewRepo creates a new repository
-func NewRepo(a *config.AppConfig) *Repository {
+func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
+		DB:  dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 
@@ -34,12 +39,12 @@ func NewHandlers(r *Repository) {
 
 // Home is the home page handler
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	renders.RenderTemplate(w, r, "home.page.tmpl", &models.TemplateData{})
+	renders.Template(w, r, "home.page.tmpl", &models.TemplateData{})
 }
 
 // About is the about page handler
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
-	renders.RenderTemplate(w, r, "about.page.tmpl", &models.TemplateData{})
+	renders.Template(w, r, "about.page.tmpl", &models.TemplateData{})
 }
 
 // Reservation renders the make a reservation page and displays form
@@ -48,7 +53,7 @@ func (m *Repository) Reservation(w http.ResponseWriter, r *http.Request) {
 	data := make(map[string]interface{})
 	data["reservation"] = emptyReservation
 
-	renders.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+	renders.Template(w, r, "make-reservation.page.tmpl", &models.TemplateData{
 		Form: forms.New(nil),
 		Data: data,
 	})
@@ -79,7 +84,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		data := make(map[string]interface{})
 		data["reservation"] = reservation
 
-		renders.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+		renders.Template(w, r, "make-reservation.page.tmpl", &models.TemplateData{
 			Form: form,
 			Data: data,
 		})
@@ -94,17 +99,17 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 // Generals renders the room page
 func (m *Repository) Generals(w http.ResponseWriter, r *http.Request) {
-	renders.RenderTemplate(w, r, "generals.page.tmpl", &models.TemplateData{})
+	renders.Template(w, r, "generals.page.tmpl", &models.TemplateData{})
 }
 
 // Majors renders the room page
 func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
-	renders.RenderTemplate(w, r, "majors.page.tmpl", &models.TemplateData{})
+	renders.Template(w, r, "majors.page.tmpl", &models.TemplateData{})
 }
 
 // Majors renders the search availability page
 func (m *Repository) Availability(w http.ResponseWriter, r *http.Request) {
-	renders.RenderTemplate(w, r, "search-availability.page.tmpl", &models.TemplateData{})
+	renders.Template(w, r, "search-availability.page.tmpl", &models.TemplateData{})
 }
 
 // Majors renders the search availability page
@@ -138,7 +143,7 @@ func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
 
 // Contact renders the search availability page
 func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
-	renders.RenderTemplate(w, r, "contact.page.tmpl", &models.TemplateData{})
+	renders.Template(w, r, "contact.page.tmpl", &models.TemplateData{})
 }
 
 func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +160,7 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	data := make(map[string]interface{})
 	data["reservation"] = reservation
 
-	renders.RenderTemplate(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
+	renders.Template(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
 		Data: data,
 	})
 }

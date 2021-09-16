@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/nicolaurent/bedandbreakfast/internal/config"
+	"github.com/nicolaurent/bedandbreakfast/internal/driver"
 	"github.com/nicolaurent/bedandbreakfast/internal/handlers"
 	"github.com/nicolaurent/bedandbreakfast/internal/helpers"
 	"github.com/nicolaurent/bedandbreakfast/internal/models"
@@ -26,10 +27,11 @@ var errorLog *log.Logger
 
 // main is the main applicatio function
 func main() {
-	err := run()
+	db, err := run()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.SQL.Close()
 
 	srv := &http.Server{
 		Addr:    portNumber,
@@ -40,9 +42,12 @@ func main() {
 	log.Fatal(err)
 }
 
-func run() error {
+func run() (*driver.DB, error) {
 	// what am I going to put in the session
 	gob.Register(models.Reservation{})
+	gob.Register(models.User{})
+	gob.Register(models.Room{})
+	gob.Register(models.Restriction{})
 
 	// Change this to true when in production
 	app.InProduction = false
@@ -61,19 +66,27 @@ func run() error {
 
 	app.Session = session
 
+	// connect to database
+	log.Println("Connection to database...")
+	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=booking user=postgres password=password")
+
+	if err != nil {
+		log.Fatal("cannot connect to database! Dying...")
+	}
+
 	tc, err := renders.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("Cannot create template cache")
-		return err
+		return nil, err
 	}
 
 	app.TemplateCache = tc
 	app.UseCache = false
 
-	repo := handlers.NewRepo(&app)
+	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
 
-	renders.NewTemplates(&app)
+	renders.NewRenderer(&app)
 	helpers.NewHelpers(&app)
 
 	// http.HandleFunc("/", handlers.Repo.Home)
@@ -83,5 +96,5 @@ func run() error {
 
 	// _ = http.ListenAndServe(portNumber, nil)
 
-	return nil
+	return db, nil
 }
