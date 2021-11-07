@@ -47,6 +47,12 @@ func TestMain(m *testing.M) {
 	errorLog := log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	app.ErrorLog = errorLog
 
+	mailChan := make(chan models.MainData)
+	app.MainChan = mailChan
+	defer close(mailChan)
+
+	listenForMail()
+
 	tc, err := CreateTestTemplateCache()
 	if err != nil {
 		log.Fatal("Cannot create template cache")
@@ -61,6 +67,14 @@ func TestMain(m *testing.M) {
 	renders.NewRenderer(&app)
 
 	os.Exit(m.Run())
+}
+
+func listenForMail() {
+	go func() {
+		for {
+			_ = <-app.MainChan
+		}
+	}()
 }
 
 func getRouters() http.Handler {
